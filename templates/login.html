@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUSE Evaluation Gateway</title>
+    <style>
+        :root {
+            --buse-blue: #0A3054;
+            --buse-gold: #D4AF37;
+            --text-dark: #333333;
+            --bg-light: #F4F6F9;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .gateway-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            border-top: 5px solid var(--buse-blue);
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .logo-section h1 {
+            color: var(--buse-blue);
+            margin: 5px 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .logo-section p {
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .alert-danger {
+            background-color: #FDEDEC;
+            color: #C0392B;
+            border: 1px solid #FADBD8;
+        }
+        .alert-success {
+            background-color: #E8F8F5;
+            color: #117864;
+            border: 1px solid #A3E4D7;
+            font-weight: bold;
+            text-align: center;
+        }
+        .form-card {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+        }
+        .form-card:not(:last-child) {
+            border-bottom: 1px solid #EAEAEA;
+        }
+        .form-card h2 {
+            font-size: 16px;
+            color: var(--buse-blue);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #CCC;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: var(--buse-blue);
+            outline: none;
+            box-shadow: 0 0 5px rgba(10, 48, 84, 0.2);
+        }
+        .btn {
+            background-color: var(--buse-blue);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #061c33;
+        }
+        .admin-toggle {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .admin-toggle a {
+            color: var(--buse-blue);
+            font-size: 13px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .admin-toggle a:hover {
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="gateway-container">
+    <div class="logo-section">
+        <h1>BUSE</h1>
+        <p>Student & Peer Evaluation System</p>
+    </div>
+
+    <!-- Notification Messages -->
+    {% if success_msg %}
+        <div class="alert alert-success">{{ success_msg }}</div>
+    {% endif %}
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Student PIN Entry -->
+    <div id="student-section" class="form-card">
+        <h2>Student Access</h2>
+        <form action="{{ url_for('home') }}" method="POST">
+            <div style="margin-bottom: 15px;">
+                <label for="pin">Enter Active Session 4-Digit PIN</label>
+                <input type="text" id="pin" name="pin" maxlength="4" placeholder="e.g. 1234" required pattern="\d{4}" autocomplete="off">
+            </div>
+            <button type="submit" class="btn">Enter Evaluation Form</button>
+        </form>
+    </div>
+
+    <!-- Chairperson Secure Dashboard Access Toggle -->
+    <div id="admin-section" class="form-card hidden">
+        <h2>Chairperson / HOD Gateway</h2>
+        <form action="{{ url_for('admin_login') }}" method="POST">
+            <div style="margin-bottom: 15px;">
+                <label for="admin_password">Security Password</label>
+                <input type="password" id="admin_password" name="admin_password" placeholder="••••••••••••" required>
+            </div>
+            <button type="submit" class="btn" style="background-color: var(--buse-gold); color: #111;">Verify & Enter</button>
+        </form>
+    </div>
+
+    <div class="admin-toggle">
+        <a href="#" id="toggle-link" onclick="toggleViews()">Administrator Portal &rarr;</a>
+    </div>
+</div>
+
+<script>
+    function toggleViews() {
+        var studentDiv = document.getElementById("student-section");
+        var adminDiv = document.getElementById("admin-section");
+        var toggleLink = document.getElementById("toggle-link");
+
+        if(adminDiv.classList.contains("hidden")) {
+            adminDiv.classList.remove("hidden");
+            studentDiv.classList.add("hidden");
+            toggleLink.innerHTML = "&larr; Back to Student Entry";
+        } else {
+            adminDiv.classList.add("hidden");
+            studentDiv.classList.remove("hidden");
+            toggleLink.innerHTML = "Administrator Portal &rarr;";
+        }
+    }
+</script>
+</body>
+</html>

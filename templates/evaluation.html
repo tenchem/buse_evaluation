@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUSE Peer Evaluation Form</title>
+    <style>
+        :root {
+            --buse-blue: #0A3054;
+            --buse-gold: #D4AF37;
+            --border-color: #DDD;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F9F9F9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .header-bar {
+            background-color: var(--buse-blue);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 4px solid var(--buse-gold);
+        }
+        .header-bar h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+        .header-bar p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .meta-info-grid {
+            background: #F4F6F8;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--buse-blue);
+        }
+        .meta-info-grid p {
+            margin: 6px 0;
+            font-size: 15px;
+        }
+        .instructions {
+            background-color: #FFFEE6;
+            border: 1px solid #FFE58F;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .question-card {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 18px;
+            background: #FFF;
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .question-text {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .options-group {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .option-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #FAF9F9;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-item input {
+            margin-bottom: 6px;
+        }
+        .option-item span {
+            font-size: 11px;
+            text-align: center;
+            font-weight: bold;
+        }
+        /* Class rules to color selected states dynamically using checked styling tricks */
+        .option-item:hover {
+            background-color: #EAEAEA;
+        }
+        .option-item input:checked + span {
+            color: var(--buse-blue);
+        }
+        .option-item input:checked {
+            outline: 2px solid var(--buse-blue);
+        }
+        
+        .section-header {
+            color: var(--buse-blue);
+            border-bottom: 2px solid var(--buse-blue);
+            margin: 30px 0 15px;
+            padding-bottom: 6px;
+            font-size: 18px;
+        }
+        .metric-field {
+            margin-bottom: 20px;
+        }
+        .metric-field label {
+            display: block;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .metric-field select, .metric-field input[type="number"], .metric-field textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .metric-field textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .btn-submit {
+            background-color: var(--buse-blue);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .btn-submit:hover {
+            background-color: #061c33;
+        }
+        @media(max-width: 600px) {
+            .options-group {
+                grid-template-columns: 1fr;
+            }
+            .option-item {
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 15px;
+                padding: 12px;
+            }
+            .option-item span {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-bar">
+    <h1>Bindura University of Science Education</h1>
+    <p>Academic Affairs & Quality Assurance • Student Peer Evaluation</p>
+</div>
+
+<div class="container">
+    <div class="meta-info-grid">
+        <p><strong>Lecturer:</strong> {{ session['lecturer_name'] }}</p>
+        <p><strong>Course Code:</strong> {{ session['course_code'] }}</p>
+    </div>
+
+    <div class="instructions">
+        <strong>Instructions to Student:</strong> Please complete this rating carefully. Ratings will remain completely anonymous and are processed collectively to compute teaching performance metrics. Choose the scale that represents your honest assessment:
+        <br><strong>4</strong> = Outstanding | <strong>3</strong> = Good | <strong>2</strong> = Satisfactory | <strong>1</strong> = Inadequate
+    </div>
+
+    <form action="{{ url_for('evaluation_form') }}" method="POST">
+        <div class="section-header">Section A: Pedagogical Performance Parameters</div>
+        
+        {% for q in questions %}
+        <div class="question-card">
+            <div class="question-text">{{ q.id }}. {{ q.text }}</div>
+            <div class="options-group">
+                <label class="option-item">
+                    <input type="radio" name="q_{{ q.id }}" value="4" required>
+                    <span>4 (Outstanding)</span>
+                </label>
+                <label class="option-item">
+                    <input type="radio" name="q_{{ q.id }}" value="3">
+                    <span>3 (Good)</span>
+                </label>
+                <label class="option-item">
+                    <input type="radio" name="q_{{ q.id }}" value="2">
+                    <span>2 (Satisfactory)</span>
+                </label>
+                <label class="option-item">
+                    <input type="radio" name="q_{{ q.id }}" value="1">
+                    <span>1 (Inadequate)</span>
+                </label>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="section-header">Section B: Coursework Metrics & Comments</div>
+
+        <div class="metric-field">
+            <label for="topic_coverage">What proportion of the syllabus/course topics did the lecturer cover?</label>
+            <select name="topic_coverage" id="topic_coverage" required>
+                <option value="" disabled selected>-- Choose Coverage Option --</option>
+                <option value="All">All Topics (100%)</option>
+                <option value="Most">Most Topics (75% - 99%)</option>
+                <option value="Half">Half (50% - 74%)</option>
+                <option value="Less than half">Less than half (25% - 49%)</option>
+                <option value="None">None (Below 25%)</option>
+            </select>
+        </div>
+
+        <div class="metric-field">
+            <label for="num_assignments">Total number of homework assignments / practical assessments completed:</label>
+            <input type="number" name="num_assignments" id="num_assignments" min="0" required placeholder="e.g. 4">
+        </div>
+
+        <div class="metric-field">
+            <label for="num_tests">Total number of formal, graded progress tests written during course:</label>
+            <input type="number" name="num_tests" id="num_tests" min="0" required placeholder="e.g. 2">
+        </div>
+
+        <div class="metric-field">
+            <label for="general_comments">General / Qualitative Feedback Comments:</label>
+            <textarea name="general_comments" id="general_comments" placeholder="Please provide constructive suggestions regarding this lecturer's pedagogical methods, material clarity, or classroom environment..."></textarea>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <button type="submit" class="btn-submit">Submit Digital Peer Evaluation</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

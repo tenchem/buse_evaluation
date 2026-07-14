@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUSE Evaluation Chairperson Dashboard</title>
+    <style>
+        :root {
+            --buse-blue: #0A3054;
+            --buse-gold: #D4AF37;
+            --dark-gray: #2c3e50;
+            --border-color: #E2E8F0;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #F7FAFC;
+            margin: 0;
+            padding: 0;
+            color: #2D3748;
+        }
+        .nav-bar {
+            background-color: var(--buse-blue);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--buse-gold);
+        }
+        .nav-bar h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .btn-logout {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            background-color: white;
+            color: var(--buse-blue);
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        @media(max-width: 768px) {
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+        .panel h2 {
+            margin-top: 0;
+            color: var(--buse-blue);
+            font-size: 18px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .form-row {
+            margin-bottom: 15px;
+        }
+        .form-row label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-row input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #CBD5E0;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn-action {
+            background-color: var(--buse-blue);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-action:hover {
+            background-color: #061c33;
+        }
+        /* Active sessions list styling */
+        .session-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #EDF2F7;
+        }
+        .session-item:last-child {
+            border-bottom: none;
+        }
+        .pin-badge {
+            background-color: var(--buse-gold);
+            color: black;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .status-badge {
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-active { background-color: #C6F6D5; color: #22543D; }
+        .status-inactive { background-color: #FED7D7; color: #742A2A; }
+        
+        .toggle-link {
+            font-size: 12px;
+            color: #3182CE;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        .toggle-link:hover { text-decoration: underline; }
+
+        /* Report / Evaluation Metrics */
+        .lecturer-report-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--buse-blue);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .report-header h3 {
+            margin: 0;
+            color: var(--buse-blue);
+            font-size: 20px;
+        }
+        .overall-score-badge {
+            background: var(--buse-blue);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .meta-stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        @media(max-width: 600px) {
+            .meta-stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .stat-box {
+            background: #F7FAFC;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        .stat-box small {
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .stat-box div {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--buse-blue);
+            margin-top: 4px;
+        }
+
+        /* Metric questions breakdowns expandable */
+        .details-trigger {
+            background-color: #EDF2F7;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        .details-trigger:hover {
+            background-color: #E2E8F0;
+        }
+        .detailed-scores-table {
+            display: none;
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .detailed-scores-table th, .detailed-scores-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            font-size: 13px;
+            text-align: left;
+        }
+        .detailed-scores-table th {
+            background-color: #F7FAFC;
+        }
+        .comments-box {
+            background: #FAF5FF;
+            border-left: 4px solid #9F7AEA;
+            padding: 15px;
+            border-radius: 0 4px 4px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .comments-box h4 {
+            margin: 0 0 10px 0;
+            color: #553C9A;
+        }
+        .comment-item {
+            font-style: italic;
+            font-size: 13px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #E2E8F0;
+            color: #4A5568;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="nav-bar">
+    <h1>BUSE Evaluation Panel — Departmental Chairperson Dashboard</h1>
+    <a href="{{ url_for('admin_logout') }}" class="btn-logout">Sign Out</a>
+</div>
+
+<div class="dashboard-container">
+    
+    <div class="control-grid">
+        <!-- Panel to Create Evaluation Session -->
+        <div class="panel">
+            <h2>Generate Active Session PIN</h2>
+            <form action="{{ url_for('create_session') }}" method="POST">
+                <div class="form-row">
+                    <label for="lecturer_name">Lecturer Full Name</label>
+                    <input type="text" id="lecturer_name" name="lecturer_name" placeholder="e.g. Dr. Diamond Dziva" required>
+                </div>
+                <div class="form-row">
+                    <label for="course_code">Course Code</label>
+                    <input type="text" id="course_code" name="course_code" placeholder="e.g. PC307" required>
+                </div>
+                <button type="submit" class="btn-action">Deploy Evaluation Track</button>
+            </form>
+        </div>
+
+        <!-- Panel Showing Existing Sessions & PINs -->
+        <div class="panel">
+            <h2>Evaluation Sessions Status</h2>
+            <div style="max-height: 230px; overflow-y: auto;">
+                {% if not sessions %}
+                    <p style="color: #718096; font-size: 14px;">No evaluation tracks created yet.</p>
+                {% else %}
+                    {% for s in sessions %}
+                        <div class="session-item">
+                            <div>
+                                <strong style="font-size:15px; color: var(--buse-blue);">{{ s.course_code }}</strong> 
+                                <span style="font-size: 13px; color: #4A5568;">({{ s.lecturer_name }})</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="pin-badge">{{ s.pin }}</span>
+                                {% if s.is_active == 1 %}
+                                    <span class="status-badge status-active">Active</span>
+                                {% else %}
+                                    <span class="status-badge status-inactive">Closed</span>
+                                {% endif %}
+                                <a href="{{ url_for('toggle_session', session_id=s.id) }}" class="toggle-link">Toggle</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <h2 style="color: var(--buse-blue); font-size: 22px; margin-bottom: 20px; border-bottom: 3px solid var(--buse-gold); padding-bottom: 6px;">
+        Evaluated Lecturer Summary Reports
+    </h2>
+
+    {% if not lecturers %}
+        <div class="panel" style="text-align: center; padding: 40px;">
+            <p style="color: #718096; font-size: 16px;">No student peer evaluation responses captured yet. Active evaluation sessions must receive feedback submissions.</p>
+        </div>
+    {% else %}
+        {% for lec in lecturers %}
+        <div class="lecturer-report-card">
+            <div class="report-header">
+                <h3>{{ lec.lecturer_name }} — <span style="font-weight: normal;">{{ lec.course_code }}</span></h3>
+                <div class="overall-score-badge">Overall Rating: {{ lec.overall_average }}/4</div>
+            </div>
+
+            <div class="meta-stats-row">
+                <div class="stat-box">
+                    <small>Sample Size</small>
+                    <div>{{ lec.submissions_count }}</div>
+                </div>
+                <div class="stat-box">
+                    <small>Syllabus Coverage</small>
+                    <div>{{ lec.mode_coverage }}</div>
+                </div>
+                <div class="stat-box">
+                    <small>Avg Assignments Given</small>
+                    <div>{{ lec.avg_assignments }}</div>
+                </div>
+                <div class="stat-box">
+                    <small>Avg Progress Tests Given</small>
+                    <div>{{ lec.avg_tests }}</div>
+                </div>
+            </div>
+
+            <div class="details-trigger" onclick="toggleDetails('details-{{ loop.index }}')">
+                View/Hide Exact 23 Questions Score Table
+            </div>
+
+            <table class="detailed-scores-table" id="details-{{ loop.index }}">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Q. Num</th>
+                        <th>BUSE Peer Evaluation Question Dimension</th>
+                        <th style="width: 150px; text-align: center;">Average Score (1-4)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in questions %}
+                    <tr>
+                        <td style="text-align: center; font-weight: bold;">{{ q.id }}</td>
+                        <td>{{ q.text }}</td>
+                        <td style="text-align: center; font-weight: bold; color: var(--buse-blue);">
+                            {{ lec.avg_scores[q.id] }}{% if lec.avg_scores[q.id] != 'N/A' %}/4.0{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if lec.comments %}
+            <div class="comments-box">
+                <h4>Qualitative Comments History:</h4>
+                {% for comment in lec.comments %}
+                    <div class="comment-item">"{{ comment }}"</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+</div>
+
+<script>
+    function toggleDetails(tableId) {
+        var table = document.getElementById(tableId);
+        if (table.style.display === "table") {
+            table.style.display = "none";
+        } else {
+            table.style.display = "table";
+        }
+    }
+</script>
+</body>
+</html>
