@@ -4,11 +4,13 @@ import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from flask import redirect, url_for, flash, session
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 DB_FILE = "database.db"
-ADMIN_PASSWORD = "BuseChairperson2026"  # Static password for creating sessions & dashboard access
+ADMIN_PASSWORD = "vbn"  # Static password for creating sessions & dashboard access
 
 # The exact 23 questions from the BUSE Peer Assessment / Evaluation standard
 BUSE_QUESTIONS = [
@@ -174,6 +176,30 @@ def toggle_session(session_id):
         conn.execute('UPDATE evaluation_sessions SET is_active = ? WHERE id = ?', (new_state, session_id))
         conn.commit()
     conn.close()
+    return redirect(url_for('dashboard'))
+
+
+@app.route('/admin/session/delete/<int:session_id>', methods=['POST'])
+def delete_session(session_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('home'))
+
+    conn = get_db_connection()
+    try:
+        # Remove dependent response data first to avoid foreign key conflicts.
+        response_ids = conn.execute('SELECT id FROM responses WHERE session_id = ?', (session_id,)).fetchall()
+        for row in response_ids:
+            conn.execute('DELETE FROM question_scores WHERE response_id = ?', (row['id'],))
+        conn.execute('DELETE FROM responses WHERE session_id = ?', (session_id,))
+        conn.execute('DELETE FROM evaluation_sessions WHERE id = ?', (session_id,))
+        conn.commit()
+        flash('Lecturer profile deleted successfully.', 'success')
+    except Exception as exc:
+        conn.rollback()
+        flash(f'Error deleting lecturer profile: {exc}', 'danger')
+    finally:
+        conn.close()
+
     return redirect(url_for('dashboard'))
 
 
