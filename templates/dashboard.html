@@ -143,6 +143,18 @@
             margin-left: 10px;
         }
         .toggle-link:hover { text-decoration: underline; }
+        .delete-link {
+            font-size: 12px;
+            color: #C53030;
+            text-decoration: none;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .delete-link:hover { text-decoration: underline; }
 
         /* Report / Evaluation Metrics */
         .lecturer-report-card {
@@ -267,6 +279,25 @@
     <a href="{{ url_for('admin_logout') }}" class="btn-logout">Sign Out</a>
 </div>
 
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <!-- Smaller Logo next to the Dashboard Title -->
+            <img src="{{ url_for('static', filename='images/buse_logo.png') }}" 
+                 alt="BUSE Logo" 
+                 width="40" 
+                 height="40" 
+                 class="d-inline-block align-text-top me-2"
+                 style="border-radius: 50%; background-color: white; padding: 2px;">
+            
+        </a>
+        <span class="navbar-text text-white">
+            Educational Technology Dept
+        </span>
+    </div>
+</nav>
+
+
 <div class="dashboard-container">
     
     <div class="control-grid">
@@ -276,7 +307,7 @@
             <form action="{{ url_for('create_session') }}" method="POST">
                 <div class="form-row">
                     <label for="lecturer_name">Lecturer Full Name</label>
-                    <input type="text" id="lecturer_name" name="lecturer_name" placeholder="e.g. Dr. Diamond Dziva" required>
+                    <input type="text" id="lecturer_name" name="lecturer_name" placeholder="e.g. Mr. Tendai Chemariki" required>
                 </div>
                 <div class="form-row">
                     <label for="course_code">Course Code</label>
@@ -284,6 +315,13 @@
                 </div>
                 <button type="submit" class="btn-action">Deploy Evaluation Track</button>
             </form>
+
+
+
+        
+
+
+
         </div>
 
         <!-- Panel Showing Existing Sessions & PINs -->
@@ -307,6 +345,9 @@
                                     <span class="status-badge status-inactive">Closed</span>
                                 {% endif %}
                                 <a href="{{ url_for('toggle_session', session_id=s.id) }}" class="toggle-link">Toggle</a>
+                                <form action="{{ url_for('delete_session', session_id=s.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this lecturer profile and all associated session data?');">
+                                    <button type="submit" class="delete-link">Delete</button>
+                                </form>
                             </div>
                         </div>
                     {% endfor %}
@@ -328,7 +369,21 @@
         <div class="lecturer-report-card">
             <div class="report-header">
                 <h3>{{ lec.lecturer_name }} — <span style="font-weight: normal;">{{ lec.course_code }}</span></h3>
+
+            
+                  
+                    
                 <div class="overall-score-badge">Overall Rating: {{ lec.overall_average }}/4</div>
+
+
+
+
+
+               
+                   
+
+                   
+                
             </div>
 
             <div class="meta-stats-row">
@@ -388,6 +443,8 @@
     {% endif %}
 
 </div>
+
+
 
 <script>
     function toggleDetails(tableId) {
